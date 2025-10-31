@@ -1,0 +1,25 @@
+# Core automation
+playwright==1.42.0
+aiohttp==3.9.3
+python-dotenv==1.0.1
+requests==2.31.0
+
+# Web framework (for webhook)
+flask==3.0.2
+werkzeug==3.0.1
+
+# OAuth
+authlib==1.3.0
+requests-oauthlib==1.3.1
+
+# Database
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.27
+
+# Utilities
+python-dateutil==2.8.2
+pydantic==2.6.1
+colorlog==6.8.2
+
+# Production server
+gunicorn==21.2.0
