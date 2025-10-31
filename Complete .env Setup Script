@@ -1,0 +1,264 @@
+"""
+FAST Complete .env Setup
+Combines all credentials: existing + new automated ones
+"""
+
+import os
+import json
+from datetime import datetime
+
+def create_complete_env():
+    """Create complete .env file with all credentials"""
+    
+    print("""
+╔══════════════════════════════════════════════════════════════╗
+║  FAST .env SETUP - Enter Your Existing Credentials          ║
+╚══════════════════════════════════════════════════════════════╝
+""")
+    
+    # Dictionary to store all credentials
+    env_vars = {}
+    
+    print("\n📝 STEP 1: Enter credentials you ALREADY HAVE\n")
+    
+    # Existing credentials you have
+    print("✅ You already have these:")
+    env_vars['POSTGRES_URL'] = input("POSTGRES_URL: ").strip()
+    env_vars['GROQ_API_KEY'] = input("GROQ_API_KEY: ").strip()
+    env_vars['TWILIO_ACCOUNT_SID'] = input("TWILIO_ACCOUNT_SID: ").strip()
+    env_vars['TWILIO_AUTH_TOKEN'] = input("TWILIO_AUTH_TOKEN: ").strip()
+    env_vars['TWILIO_PHONE_NUMBER'] = input("TWILIO_PHONE_NUMBER: ").strip()
+    env_vars['OPENAI_API_KEY'] = input("OPENAI_API_KEY: ").strip()
+    env_vars['ANTHROPIC_API_KEY'] = input("ANTHROPIC_API_KEY: ").strip()
+    
+    print("\n📝 STEP 2: Do you have Meta WhatsApp credentials? (y/n)")
+    has_meta = input(">>> ").lower() == 'y'
+    
+    if has_meta:
+        print("\nEnter Meta WhatsApp credentials:")
+        env_vars['META_ACCESS_TOKEN'] = input("META_ACCESS_TOKEN: ").strip()
+        env_vars['META_APP_SECRET'] = input("META_APP_SECRET: ").strip()
+        env_vars['META_VERIFY_TOKEN'] = input("META_VERIFY_TOKEN: ").strip()
+        env_vars['WHATSAPP_PHONE_NUMBER_ID'] = input("WHATSAPP_PHONE_NUMBER_ID: ").strip()
+    else:
+        print("\n⚠️  Meta WhatsApp setup needed. Run: python devops_agent.py (Option 1)")
+        print("For now, I'll add placeholders...")
+        env_vars['META_ACCESS_TOKEN'] = "NEEDS_SETUP_RUN_DEVOPS_AGENT"
+        env_vars['META_APP_SECRET'] = "NEEDS_SETUP_RUN_DEVOPS_AGENT"
+        env_vars['META_VERIFY_TOKEN'] = "NEEDS_SETUP_RUN_DEVOPS_AGENT"
+        env_vars['WHATSAPP_PHONE_NUMBER_ID'] = "NEEDS_SETUP_RUN_DEVOPS_AGENT"
+    
+    print("\n📝 STEP 3: Do you have Google OAuth credentials? (y/n)")
+    has_google = input(">>> ").lower() == 'y'
+    
+    if has_google:
+        env_vars['GOOGLE_CLIENT_ID'] = input("GOOGLE_CLIENT_ID: ").strip()
+        env_vars['GOOGLE_CLIENT_SECRET'] = input("GOOGLE_CLIENT_SECRET: ").strip()
+    else:
+        print("⚠️  Google OAuth needed. Run: python devops_agent.py (Option 2)")
+        env_vars['GOOGLE_CLIENT_ID'] = "NEEDS_SETUP_RUN_DEVOPS_AGENT"
+        env_vars['GOOGLE_CLIENT_SECRET'] = "NEEDS_SETUP_RUN_DEVOPS_AGENT"
+    
+    print("\n📝 STEP 4: Do you have Microsoft OAuth credentials? (y/n)")
+    has_microsoft = input(">>> ").lower() == 'y'
+    
+    if has_microsoft:
+        env_vars['MICROSOFT_CLIENT_ID'] = input("MICROSOFT_CLIENT_ID: ").strip()
+        env_vars['MICROSOFT_CLIENT_SECRET'] = input("MICROSOFT_CLIENT_SECRET: ").strip()
+    else:
+        print("⚠️  Microsoft OAuth needed. Run: python devops_agent.py (Option 3)")
+        env_vars['MICROSOFT_CLIENT_ID'] = "NEEDS_SETUP_RUN_DEVOPS_AGENT"
+        env_vars['MICROSOFT_CLIENT_SECRET'] = "NEEDS_SETUP_RUN_DEVOPS_AGENT"
+    
+    print("\n📝 STEP 5: Do you have Weaviate credentials? (y/n)")
+    has_weaviate = input(">>> ").lower() == 'y'
+    
+    if has_weaviate:
+        env_vars['WEAVIATE_ENDPOINT'] = input("WEAVIATE_ENDPOINT: ").strip()
+        env_vars['WEAVIATE_API_KEY'] = input("WEAVIATE_API_KEY: ").strip()
+    else:
+        print("⚠️  Weaviate setup needed. Quick: https://console.weaviate.cloud/")
+        env_vars['WEAVIATE_ENDPOINT'] = "NEEDS_SETUP_SEE_GUIDE"
+        env_vars['WEAVIATE_API_KEY'] = "NEEDS_SETUP_SEE_GUIDE"
+    
+    print("\n📝 STEP 6: Do you have Pinecone credentials? (y/n)")
+    has_pinecone = input(">>> ").lower() == 'y'
+    
+    if has_pinecone:
+        env_vars['PINECONE_API_KEY'] = input("PINECONE_API_KEY: ").strip()
+    else:
+        print("⚠️  Pinecone setup needed. Quick: https://app.pinecone.io/")
+        env_vars['PINECONE_API_KEY'] = "NEEDS_SETUP_SEE_GUIDE"
+    
+    # Add router URL (usually your deployment URL)
+    print("\n📝 STEP 7: Router API URL")
+    print("This is your clarity-pearl API endpoint (e.g., http://localhost:8000)")
+    router_url = input("ROUTER_API_URL (or press Enter for localhost): ").strip()
+    env_vars['ROUTER_API_URL'] = router_url if router_url else "http://localhost:8000"
+    
+    # Create .env file
+    print("\n💾 Creating .env file...")
+    
+    env_content = f"""# Clarity Pearl Production Environment Variables
+# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+# 
+# ⚠️  NEVER commit this file to Git!
+# ⚠️  Keep these credentials secure!
+
+# ===================================================================
+# DATABASE
+# ===================================================================
+POSTGRES_URL={env_vars['POSTGRES_URL']}
+
+# ===================================================================
+# AI/LLM APIs
+# ===================================================================
+OPENAI_API_KEY={env_vars['OPENAI_API_KEY']}
+ANTHROPIC_API_KEY={env_vars['ANTHROPIC_API_KEY']}
+GROQ_API_KEY={env_vars['GROQ_API_KEY']}
+
+# ===================================================================
+# VECTOR DATABASES
+# ===================================================================
+WEAVIATE_ENDPOINT={env_vars['WEAVIATE_ENDPOINT']}
+WEAVIATE_API_KEY={env_vars['WEAVIATE_API_KEY']}
+PINECONE_API_KEY={env_vars['PINECONE_API_KEY']}
+
+# ===================================================================
+# META WHATSAPP BUSINESS API
+# ===================================================================
+META_ACCESS_TOKEN={env_vars['META_ACCESS_TOKEN']}
+META_APP_SECRET={env_vars['META_APP_SECRET']}
+META_VERIFY_TOKEN={env_vars['META_VERIFY_TOKEN']}
+WHATSAPP_PHONE_NUMBER_ID={env_vars['WHATSAPP_PHONE_NUMBER_ID']}
+
+# ===================================================================
+# TWILIO (Voice)
+# ===================================================================
+TWILIO_ACCOUNT_SID={env_vars['TWILIO_ACCOUNT_SID']}
+TWILIO_AUTH_TOKEN={env_vars['TWILIO_AUTH_TOKEN']}
+TWILIO_PHONE_NUMBER={env_vars['TWILIO_PHONE_NUMBER']}
+
+# ===================================================================
+# GOOGLE OAUTH (Calendar Integration)
+# ===================================================================
+GOOGLE_CLIENT_ID={env_vars['GOOGLE_CLIENT_ID']}
+GOOGLE_CLIENT_SECRET={env_vars['GOOGLE_CLIENT_SECRET']}
+
+# ===================================================================
+# MICROSOFT OAUTH (Calendar Integration)
+# ===================================================================
+MICROSOFT_CLIENT_ID={env_vars['MICROSOFT_CLIENT_ID']}
+MICROSOFT_CLIENT_SECRET={env_vars['MICROSOFT_CLIENT_SECRET']}
+
+# ===================================================================
+# API ROUTING
+# ===================================================================
+ROUTER_API_URL={env_vars['ROUTER_API_URL']}
+
+# ===================================================================
+# OPTIONAL: System Environment Variables (usually not needed)
+# ===================================================================
+# These are detected from your system automatically:
+# HOME, PREFIX, SHELL, PATH, ANDROID_DATA, ANDROID_ROOT
+# DIST_EXTRA_CONFIG, SETUPTOOLS_EXT_SUFFIX, NO_NETWORK
+# VALIDATE_PYPROJECT_NO_NETWORK, DISTUTILS_USE_SDK
+# DATABRICKS_RUNTIME_VERSION
+"""
+    
+    # Write to file
+    with open('.env', 'w') as f:
+        f.write(env_content)
+    
+    print("\n✅ .env file created successfully!")
+    
+    # Create backup
+    backup_name = f'.env.backup.{datetime.now().strftime("%Y%m%d_%H%M%S")}'
+    with open(backup_name, 'w') as f:
+        f.write(env_content)
+    print(f"✅ Backup created: {backup_name}")
+    
+    # Check what still needs setup
+    needs_setup = []
+    for key, value in env_vars.items():
+        if 'NEEDS_SETUP' in str(value):
+            needs_setup.append(key)
+    
+    if needs_setup:
+        print(f"""
+╔══════════════════════════════════════════════════════════════╗
+║  ⚠️  CREDENTIALS STILL NEEDED                                ║
+╚══════════════════════════════════════════════════════════════╝
+
+You still need to set up these {len(needs_setup)} credentials:
+""")
+        
+        for key in needs_setup:
+            if 'META' in key or 'WHATSAPP' in key:
+                print(f"  • {key}")
+                print(f"    → Run: python devops_agent.py (Option 1)")
+            elif 'GOOGLE' in key:
+                print(f"  • {key}")
+                print(f"    → Run: python devops_agent.py (Option 2)")
+            elif 'MICROSOFT' in key:
+                print(f"  • {key}")
+                print(f"    → Run: python devops_agent.py (Option 3)")
+            elif 'WEAVIATE' in key:
+                print(f"  • {key}")
+                print(f"    → Quick setup: https://console.weaviate.cloud/")
+            elif 'PINECONE' in key:
+                print(f"  • {key}")
+                print(f"    → Quick setup: https://app.pinecone.io/")
+        
+        print(f"""
+After getting these credentials, edit .env file and replace
+"NEEDS_SETUP_..." with actual values.
+""")
+    
+    else:
+        print("""
+╔══════════════════════════════════════════════════════════════╗
+║  ✅ ALL CREDENTIALS COMPLETE!                                ║
+╚══════════════════════════════════════════════════════════════╝
+
+Your .env file is ready to use!
+""")
+    
+    # Create setup checklist
+    checklist = {
+        'timestamp': datetime.now().isoformat(),
+        'complete': [k for k, v in env_vars.items() if 'NEEDS_SETUP' not in str(v)],
+        'pending': needs_setup,
+        'total': len(env_vars),
+        'complete_count': len(env_vars) - len(needs_setup)
+    }
+    
+    with open('setup_checklist.json', 'w') as f:
+        json.dump(checklist, f, indent=2)
+    
+    print(f"""
+📊 SUMMARY:
+   ✅ Complete: {checklist['complete_count']}/{checklist['total']} credentials
+   ⏳ Pending: {len(needs_setup)} credentials
+   
+📄 Files created:
+   • .env (main file)
+   • {backup_name} (backup)
+   • setup_checklist.json (tracking)
+
+🚀 NEXT STEPS:
+   1. Complete missing credentials (see list above)
+   2. Test your setup: python test_credintial.py
+   3. Start your services!
+
+💡 TIP: Use devops_agent.py to automate OAuth setups!
+""")
+
+if __name__ == "__main__":
+    try:
+        create_complete_env()
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Setup interrupted. Run again when ready.")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        print("Try running again or 
